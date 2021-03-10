@@ -24,11 +24,11 @@
         <td>/roster</td>
         <td>GET</td>
         <td>None</td>
-        <td>A JSON object holding data about ALL movies available to the user</td>
+        <td>A JSON object holding data about ALL players available to the user</td>
       </tr>
       <tr>
         <td>Return data (bio, position, stats, and image URL) about a single player by name to the user</td>
-        <td>/movies/:Name</td>
+        <td>/roster/:Name</td>
         <td>GET</td>
         <td>none</td>
         <td>a JSON object hold data about a single title as such: 
@@ -37,14 +37,14 @@
       </tr>
       <tr>
         <td>Return data about a position (description) by type (e.g., "Center")</td>
-        <td>/movies/position/:Type</td>
+        <td>/roster/position/:Type</td>
         <td>GET</td>
         <td>None</td>
         <td>a JSON object holding data about a single position as such: {Name: "Colin White", Position: "Forward"},</td>
       </tr>
       <tr>
         <td>Return data about a coach (bio, position and record) by name</td>
-        <td>/movies/coach/:Name</td>
+        <td>/roster/coach/:Name</td>
         <td>GET</td>
         <td>None</td>
         <td>a JSON about holding data about a single coach as such: {coach: [];}</td>
