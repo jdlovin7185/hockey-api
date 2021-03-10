@@ -127,9 +127,43 @@ app.get('/documentation', (req, res) => {
   res.sendFile('public/documentation.html', { root: __dirname });
 });
 
-app.get('/players', (req, res) => {
+app.get('/roster', (req, res) => {
   res.json(usaPlayers);
 });
+
+app.get('/roster/:Name', (req, res) => {
+  res.send('This is the Players Name');
+});
+
+app.get('/roster/position/:Type', (req, res) => {
+  res.send('I\'m a left-winger');
+});
+
+app.get('/roster/coach/:Name', (req, res) => {
+  res.send('This is a coach');
+});
+
+app.post('/users', (req, res) => {
+  res.send('I\'m trying to sign up');
+});
+
+app.post('/users/:Username', (req, res) => {
+  res.send('I need to update my info');
+});
+
+app.put('/users/:Username/roster/:FavoritePlayer', (req, res) => {
+  res.send('That\'s my favorite guy');
+});
+
+app.delete('users/:Username/roster/:FavoritePlayer', (req, res) => {
+  res.send('He had a good run');
+});
+
+app.delete('/users/:Username', (req, res) => {
+  res.send('User has been deleted');
+});
+
+// Create mongodb for users and players
 
 //listen for requests
 app.listen(8080, () => {
