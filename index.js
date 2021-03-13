@@ -134,6 +134,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to Team USA');
 });
 
+// Gets documentation
 app.get('/documentation', (req, res) => {
   res.sendFile('public/documentation.html', { root: __dirname });
 });
@@ -178,6 +179,7 @@ app.get('/roster/coach/:Name', (req, res) => {
   res.send('This is a coach');
 });
 
+// Creates a new user
 app.post('/users', (req, res) => {
   Users.findOne({ Username: req.body.Username })
   .then((user) => {
@@ -204,6 +206,7 @@ app.post('/users', (req, res) => {
   });
 });
 
+// Gets a list of users
 app.get('/users/:Username', (req, res) => {
   Users.findOne({ Username: req.params.Username })
   .then((user) => {
@@ -215,6 +218,7 @@ app.get('/users/:Username', (req, res) => {
   });
 });
 
+// Adds a new user
 app.put('/users/:Username', (req, res) => {
   Users.findOneAndUpdate({ Username: req.params.Username}, 
     { $set:
