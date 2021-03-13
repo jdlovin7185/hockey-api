@@ -1,5 +1,16 @@
-const express = require("express");
+const express = require("express"),
+      mongoose = require("mongoose"),
+      bodyParser = require("body-parser");
+
+
+const Models = require('./models.js');
+const Players = Models.Player;
+const Users = Models.User;
 const app = express();
+app.use(bodyParser.json());
+
+mongoose.connect('mongodb://localhost:27017/rosters', {
+  useNewUrlParser: true, useUnifiedTopology: true });
 
 let usaPlayers = [
   {
@@ -127,16 +138,40 @@ app.get('/documentation', (req, res) => {
   res.sendFile('public/documentation.html', { root: __dirname });
 });
 
+// Returns a full roster of players
 app.get('/roster', (req, res) => {
-  res.json(usaPlayers);
+  Players.find()
+  .then((players) => {
+    res.status(201).json(players);
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  });
 });
 
+// Returns Info about one player
 app.get('/roster/:Name', (req, res) => {
-  res.send('This is the Players Name');
+  Players.findOne({Name: req.params.Name})
+  .then((player) => {
+    res.status(201).json(player);
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  });
 });
 
-app.get('/roster/position/:Type', (req, res) => {
-  res.send('I\'m a left-winger');
+// Returns a players position 
+app.get('/roster/position/:Name', (req, res) => {
+  Players.findOne({Name: req.params.Name})
+  .then((player) => {
+    res.status(201).json(player.Position);
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  });
 });
 
 app.get('/roster/coach/:Name', (req, res) => {
@@ -144,26 +179,110 @@ app.get('/roster/coach/:Name', (req, res) => {
 });
 
 app.post('/users', (req, res) => {
-  res.send('I\'m trying to sign up');
+  Users.findOne({ Username: req.body.Username })
+  .then((user) => {
+    if (user) {
+      return res.status(400).send(req.body.Username + ' already exists');
+    } else {
+      Users
+      .create({
+        Username: req.body.Username,
+        Password: req.body.Password,
+        Email: req.body.Email,
+        Birthday: req.body.Birthday
+      })
+      .then((user) => {res.status(201).json(user) })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send('Error: ' + error);
+      })
+    }
+  })
+  .catch((error) => {
+    console.error(error);
+    res.status(500).send('Error: ' + error);
+  });
 });
 
-app.post('/users/:Username', (req, res) => {
-  res.send('I need to update my info');
+app.get('/users/:Username', (req, res) => {
+  Users.findOne({ Username: req.params.Username })
+  .then((user) => {
+    res.json(user);
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  });
 });
 
-app.put('/users/:Username/roster/:FavoritePlayer', (req, res) => {
-  res.send('That\'s my favorite guy');
+app.put('/users/:Username', (req, res) => {
+  Users.findOneAndUpdate({ Username: req.params.Username}, 
+    { $set:
+      {
+        Username: req.params.Username,
+        Password: req.params.Password,
+        Email: req.body.Email,
+        Birthday: req.body.Birthday
+      }
+  },
+  { new: true }, 
+  // This line makes sure that the updated document is returned
+  (err, updatedUser) => {
+    if(err) {
+      console.error(err);
+      res.status(500).send('Error: ' + err);
+    } else {
+      res.json(updatedUser);
+    }
+  });
+});
+
+app.post('/users/:Username/roster/:FavoritePlayer', (req, res) => {
+  Users.findOneAndUpdate({ Username: req.params.Username }, 
+    { $push: { FavoritePlayer: req.params.FavoritePlayer }},
+    { new: true },
+    // This line makes sure that the updated document is returned
+    (err, updatedUser) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error: ' + err);
+      } else {
+        res.status(200).json(updatedUser);
+      }
+    });
 });
 
 app.delete('users/:Username/roster/:FavoritePlayer', (req, res) => {
-  res.send('He had a good run');
+Users.findOneAndUpdate({ Username: req.params.Username}),
+{ $pull:
+{
+  FavoritePlayer: req.params.FavoritePlayer
+}},
+{new: true},
+(err, updatedUser) => {
+  if(err) {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  } else {
+    res.json(updatedUser);
+  }
+  };
 });
 
 app.delete('/users/:Username', (req, res) => {
-  res.send('User has been deleted');
+  Users.findOneAndRemove({ Username: req.params.Username })
+  .then((user) => {
+    if (!user) {
+      res.status(400).send(req.params.Username + ' was not found');
+    } else {
+      res.status(200).send(req.params.Username + ' was deleted');
+    }
+  })
+  .catch((err) => {
+    console.error(err);
+    res.status(500).send('Error: ' + err);
+  });
 });
-
-// Create mongodb for users and players
 
 //listen for requests
 app.listen(8080, () => {
