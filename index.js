@@ -218,7 +218,7 @@ app.get('/users/:Username', (req, res) => {
   });
 });
 
-// Adds a new user
+// Updates user info
 app.put('/users/:Username', (req, res) => {
   Users.findOneAndUpdate({ Username: req.params.Username}, 
     { $set:
