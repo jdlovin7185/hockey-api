@@ -2,10 +2,7 @@ const mongoose = require('mongoose');
 
 let playerSchema = mongoose.Schema({
     Name: {type: String, required: true},
-    Position: {
-      Type: String,
-      Description: String
-    },
+    Position: [{type: mongoose.Schema.Types.ObjectId, ref: 'Position'}],
     Stats: {
       GamesPlayed: String,
       Goals: String,
@@ -15,7 +12,7 @@ let playerSchema = mongoose.Schema({
     },
     Bio: {
       Birth: Date,
-      NHLTeam: String,
+      NHLTeam: [{type: mongoose.Schema.Types.ObjectId, ref: 'Team'}],
       Weight: String,
       Height: String, 
       Description: String
